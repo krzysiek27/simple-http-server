@@ -1,9 +1,9 @@
 package server
 
-//import (
+import (
 //	"fmt"
-//	"net/http"
-//)
+	"net/http"
+)
 
 // Returns a string containing name and version of this program
 func GetVersionString() string {
@@ -27,7 +27,18 @@ simple-http-server run --file <file.html> 	- serves <file.html> on port 3333
 	return helpMessage
 }
 
+type ServeFileHandler struct{
+	fileName string 
+}
+
+func (t *ServeFileHandler)ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, t.fileName)
+}
+
 // Serves HTML file from "path" on port "port"
-func ServeHtmlFile(filePath string, port int) error {
-	return nil
+func ServeHtmlFile(filePath string) error {
+	var handler ServeFileHandler
+	handler.fileName = filePath
+	err := http.ListenAndServe(":8080", &handler)
+	return err
 }
